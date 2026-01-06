@@ -28,7 +28,8 @@ def api_root(request):
             'metricas_modelo': '/api/model/metrics/',
             'comparar_modelos': '/api/model/compare/',
             'subir_dataset': '/api/dataset/upload/',
-            'estado_dataset': '/api/dataset/estado/'
+            'estado_dataset': '/api/dataset/estado/',
+            'entrenar_modelo': '/api/model/train/'
         }
     })
 
@@ -164,15 +165,32 @@ def upload_dataset(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-# --- ESTA ES LA NUEVA FUNCIÓN QUE FALTABA ---
 @api_view(['GET'])
 def dataset_status(request):
     """Verifica el estado actual del procesamiento"""
     try:
-        # Aquí verificamos si hay datos cargados en el handler
         return Response({
             'estado': 'listo',
             'mensaje': 'Sistema preparado para procesar datos',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+# --- ESTA ES LA NUEVA FUNCIÓN QUE FALTABA ---
+@api_view(['POST'])
+def train_model(request):
+    """Inicia el entrenamiento de un modelo"""
+    try:
+        model_type = request.data.get('model_type', 'logistic_regression')
+        # Aquí iría la lógica real de llamada al entrenamiento
+        
+        return Response({
+            'mensaje': f'Entrenamiento iniciado para: {model_type}',
+            'status': 'training_started',
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
