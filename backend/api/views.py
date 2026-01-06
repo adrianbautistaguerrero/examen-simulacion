@@ -26,7 +26,8 @@ def api_root(request):
             'preprocesamiento_split': '/api/preprocessing/split/',
             'preprocesamiento_transform': '/api/preprocessing/transform/',
             'metricas_modelo': '/api/model/metrics/',
-            'comparar_modelos': '/api/model/compare/'
+            'comparar_modelos': '/api/model/compare/',
+            'subir_dataset': '/api/dataset/upload/'
         }
     })
 
@@ -135,6 +136,34 @@ def model_compare(request):
     try:
         comparison = model_evaluator.compare_models()
         return Response(comparison)
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+# --- ESTA ES LA FUNCIÓN QUE FALTABA ---
+@api_view(['POST'])
+def upload_dataset(request):
+    """Carga un dataset (CSV) para ser procesado"""
+    try:
+        if 'file' not in request.FILES:
+            return Response(
+                {'error': 'No se proporcionó ningún archivo. La key debe ser "file".'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        file = request.FILES['file']
+        
+        # Aquí puedes agregar la lógica para guardar el archivo usando tu dataset_handler
+        # Por ejemplo: path = dataset_handler.save_file(file)
+        
+        return Response({
+            'mensaje': 'Archivo recibido correctamente',
+            'nombre': file.name,
+            'tamaño': file.size
+        }, status=status.HTTP_201_CREATED)
+
     except Exception as e:
         return Response(
             {'error': str(e)},
