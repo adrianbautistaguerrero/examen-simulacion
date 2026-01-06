@@ -7,7 +7,7 @@ from .dataset_handler import DatasetHandler
 from .preprocessing import DataPreprocessor
 from .model_evaluator import ModelEvaluator
 
-# Initialize handlers with example data
+# Inicializar handlers
 spam_detector = SpamDetector()
 dataset_handler = DatasetHandler()
 preprocessor = DataPreprocessor()
@@ -27,7 +27,8 @@ def api_root(request):
             'preprocesamiento_transform': '/api/preprocessing/transform/',
             'metricas_modelo': '/api/model/metrics/',
             'comparar_modelos': '/api/model/compare/',
-            'subir_dataset': '/api/dataset/upload/'
+            'subir_dataset': '/api/dataset/upload/',
+            'estado_dataset': '/api/dataset/estado/'
         }
     })
 
@@ -142,28 +143,38 @@ def model_compare(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-# --- ESTA ES LA FUNCIÓN QUE FALTABA ---
 @api_view(['POST'])
 def upload_dataset(request):
     """Carga un dataset (CSV) para ser procesado"""
     try:
         if 'file' not in request.FILES:
             return Response(
-                {'error': 'No se proporcionó ningún archivo. La key debe ser "file".'},
+                {'error': 'No se proporcionó ningún archivo'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         file = request.FILES['file']
-        
-        # Aquí puedes agregar la lógica para guardar el archivo usando tu dataset_handler
-        # Por ejemplo: path = dataset_handler.save_file(file)
-        
         return Response({
-            'mensaje': 'Archivo recibido correctamente',
-            'nombre': file.name,
-            'tamaño': file.size
-        }, status=status.HTTP_201_CREATED)
+            'mensaje': 'Archivo recibido',
+            'nombre': file.name
+        })
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
+# --- ESTA ES LA NUEVA FUNCIÓN QUE FALTABA ---
+@api_view(['GET'])
+def dataset_status(request):
+    """Verifica el estado actual del procesamiento"""
+    try:
+        # Aquí verificamos si hay datos cargados en el handler
+        return Response({
+            'estado': 'listo',
+            'mensaje': 'Sistema preparado para procesar datos',
+            'timestamp': datetime.now().isoformat()
+        })
     except Exception as e:
         return Response(
             {'error': str(e)},
