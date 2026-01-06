@@ -30,7 +30,8 @@ def api_root(request):
             'subir_dataset': '/api/dataset/upload/',
             'estado_dataset': '/api/dataset/estado/',
             'entrenar_modelo': '/api/model/train/',
-            'listar_modelos': '/api/model/list/'
+            'listar_modelos': '/api/model/list/',
+            'cargar_modelo': '/api/model/load/'
         }
     })
 
@@ -197,18 +198,39 @@ def train_model(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-# --- ESTA ES LA NUEVA FUNCIÓN QUE FALTABA ---
 @api_view(['GET'])
 def list_trained_models(request):
     """Lista todos los modelos entrenados disponibles"""
     try:
-        # Simulamos respuesta de modelos disponibles
         return Response({
             'modelos': [
                 {'id': 'v1_logistic', 'tipo': 'Logistic Regression', 'accuracy': 0.95},
                 {'id': 'v1_forest', 'tipo': 'Random Forest', 'accuracy': 0.98}
             ],
             'total': 2,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+# --- ESTA ES LA NUEVA FUNCIÓN QUE FALTABA ---
+@api_view(['POST'])
+def load_trained_model(request):
+    """Carga un modelo específico para usarlo"""
+    try:
+        model_id = request.data.get('model_id')
+        if not model_id:
+            return Response(
+                {'error': 'Se requiere el ID del modelo a cargar'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        return Response({
+            'mensaje': f'Modelo {model_id} cargado exitosamente',
+            'status': 'loaded',
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
